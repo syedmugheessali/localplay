@@ -1,0 +1,13 @@
+# Personal or copyrighted media should not be committed.
+*.mp4
+*.webm
+*.mov
+*.mkv
+*.avi
+trailerimg.jpg
+
+# Editor and operating-system files
+.vscode/
+.qa/
+.DS_Store
+Thumbs.db
