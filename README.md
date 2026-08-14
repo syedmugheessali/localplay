@@ -12,6 +12,8 @@ A customizable, local-first video player built with plain HTML, CSS, and JavaScr
 ![Dependencies](https://img.shields.io/badge/dependencies-none-8b5cf6)
 ![License](https://img.shields.io/badge/license-MIT-22c55e)
 
+[**Open the live player**](https://syedmugheessali.github.io/localplay/)
+
 </div>
 
 ![LocalPlay interface](assets/localplay-preview.png)
@@ -21,6 +23,10 @@ A customizable, local-first video player built with plain HTML, CSS, and JavaScr
 LocalPlay lets people open and watch videos directly in their browser. Files are read locally with the browser's built-in file API, so they are never uploaded to a server.
 
 The project is intentionally written without frameworks, packages, or a build system. It is suitable for beginners who want to explore custom media controls and for anyone who wants a simple private player.
+
+## Live demo
+
+Use LocalPlay directly at **[syedmugheessali.github.io/localplay](https://syedmugheessali.github.io/localplay/)**. Choose a video from your device to begin; it stays inside your browser.
 
 ## Highlights
 
