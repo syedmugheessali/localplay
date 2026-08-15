@@ -16,6 +16,7 @@ All notable changes to LocalPlay will be documented in this file.
 
 - Replaced the theme selector with one consistent orange visual identity
 - Updated the site favicon to match the orange palette
+- Versioned public assets so cached violet styles are not reused after deployment
 
 ## 1.0.0 - 2026-08-15
 
