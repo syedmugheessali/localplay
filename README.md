@@ -9,7 +9,7 @@ A customizable, local-first video player built with plain HTML, CSS, and JavaScr
 ![HTML](https://img.shields.io/badge/HTML-5-E34F26?logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-3-1572B6?logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=111)
-![Dependencies](https://img.shields.io/badge/dependencies-none-8b5cf6)
+![Dependencies](https://img.shields.io/badge/dependencies-none-f97316)
 ![License](https://img.shields.io/badge/license-MIT-22c55e)
 
 [**Open the live player**](https://syedmugheessali.github.io/localplay/)
@@ -17,9 +17,7 @@ A customizable, local-first video player built with plain HTML, CSS, and JavaScr
 </div>
 
 ![LocalPlay interface](assets/localplay-preview.png)
-
 ## About
-
 LocalPlay lets people open and watch videos directly in their browser. Files are read locally with the browser's built-in file API, so they are never uploaded to a server.
 
 The project is intentionally written without frameworks, packages, or a build system. It is suitable for beginners who want to explore custom media controls and for anyone who wants a simple private player.
@@ -37,7 +35,7 @@ Use LocalPlay directly at **[syedmugheessali.github.io/localplay](https://syedmu
 - **Local subtitles** — load WebVTT (`.vtt`) caption files
 - **Smart bookmarks** — save and revisit timestamps for each video
 - **Frame snapshots** — download the current video frame as a PNG
-- **Personalization** — choose from Violet, Ocean, and Sunset themes
+- **Focused visual identity** — a warm orange interface with restrained styling
 - **Theater mode** — create a larger, distraction-free viewing area
 - **Keyboard friendly** — control the main player actions without a mouse
 - **Responsive design** — adapts to desktop, tablet, and mobile screens
@@ -82,11 +80,11 @@ Your video stays on your device.
 
 LocalPlay does not include a server, database, analytics, advertising, or third-party JavaScript. Selecting a video creates a temporary local browser URL with `URL.createObjectURL()`.
 
-Only the selected theme and bookmark timestamps are saved with `localStorage`. The actual video and subtitle files are not copied or stored by the application.
+Only bookmark timestamps are saved with `localStorage`. The actual video and subtitle files are not copied or stored by the application.
 
 ## Browser and format support
 
-The core player works in current versions of Chrome, Edge, Firefox, and Safari. Actual video format support is controlled by the browser and operating system. MP4 with H.264 video and AAC audio generally provides the widest compatibility.
+The core player works in current versions of Chrome, Edge, Firefox, and Safari. LocalPlay uses standard fullscreen on Android and desktop browsers, with a native video fullscreen fallback for iPhone Safari. Actual video format support is controlled by the browser and operating system. MP4 with H.264 video and AAC audio generally provides the widest compatibility.
 
 Picture-in-picture availability also depends on the browser. LocalPlay hides that control when the feature is unavailable.
 
@@ -112,7 +110,7 @@ localplay/
 - Change colors, spacing, and responsive styles in `style.css`.
 - Change player behavior and add features in `script.js`.
 
-The theme colors are CSS variables near the top of `style.css`, making them a good beginner-friendly place to start.
+The orange accent colors are CSS variables near the top of `style.css`, making them a good beginner-friendly place to start.
 
 ## Deploy with GitHub Pages
 
@@ -138,7 +136,6 @@ No additional build command is required.
 - Custom subtitle styling
 - Video rotation and aspect-ratio controls
 - Installable progressive web app support
-- More theme customization
 
 Ideas and beginner-friendly contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 

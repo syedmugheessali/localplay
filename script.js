@@ -22,47 +22,38 @@ const bookmarkList = document.getElementById('bookmark-list');
 const clearBookmarksButton = document.getElementById('clear-bookmarks');
 const snapshotButton = document.getElementById('snapshot-button');
 const theaterButton = document.getElementById('theater-button');
-const themeSelect = document.getElementById('theme');
 const toast = document.getElementById('toast');
-
 let videoUrl = '';
 let subtitleUrl = '';
 let currentVideoKey = '';
 let bookmarks = [];
 let toastTimer;
-
 // Show a small message in the bottom-right corner.
 function showToast(message) {
     toast.textContent = message;
     toast.classList.add('show');
-
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () {
         toast.classList.remove('show');
     }, 2400);
 }
-
 function hasVideo() {
     if (!video.src) {
         showToast('Choose a video first.');
         return false;
     }
-
     return true;
 }
-
 // Convert seconds to 00:00 or 00:00:00.
 function formatTime(seconds) {
     if (!Number.isFinite(seconds)) {
         return '00:00';
     }
-
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     const paddedMinutes = String(minutes).padStart(2, '0');
     const paddedSeconds = String(remainingSeconds).padStart(2, '0');
-
     if (hours > 0) {
         return `${hours}:${paddedMinutes}:${paddedSeconds}`;
     }
@@ -112,85 +103,121 @@ async function togglePlay() {
         video.pause();
     }
 }
-
 function updatePlayButton() {
     const isPaused = video.paused;
     playButton.textContent = isPaused ? '▶' : '❚❚';
     playButton.title = isPaused ? 'Play' : 'Pause';
     player.classList.toggle('paused', isPaused);
 }
-
 function updateProgress() {
     if (!Number.isFinite(video.duration)) {
         progressSlider.value = 0;
         timestamp.textContent = '00:00 / 00:00';
         return;
     }
-
     progressSlider.value = (video.currentTime / video.duration) * 100;
     timestamp.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
 }
-
 function seekFromSlider() {
     if (Number.isFinite(video.duration)) {
         video.currentTime = (progressSlider.value / 100) * video.duration;
     }
 }
-
 function skip(seconds) {
     if (!hasVideo()) {
         return;
     }
-
     video.currentTime = Math.max(0, Math.min(video.currentTime + seconds, video.duration || 0));
 }
-
 function changeVolume() {
     video.volume = volumeSlider.value;
     video.muted = Number(volumeSlider.value) === 0;
 }
-
 function toggleMute() {
     if (!hasVideo()) {
         return;
     }
-
     video.muted = !video.muted;
 }
-
 function updateVolumeButton() {
     if (video.muted || video.volume === 0) {
         muteButton.textContent = '🔇';
         muteButton.title = 'Unmute';
     } else if (video.volume < 0.5) {
         muteButton.textContent = '🔉';
-        muteButton.title = 'Mute';
+    muteButton.title = 'Mute';
     } else {
         muteButton.textContent = '🔊';
         muteButton.title = 'Mute';
-    }
+   }
 }
-
 async function toggleFullscreen() {
     if (!hasVideo()) {
         return;
     }
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    // Exit standard fullscreen or iPhone's native video fullscreen.
+    if (fullscreenElement) {
+        const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
 
-    try {
-        if (!document.fullscreenElement) {
-            await player.requestFullscreen();
-        } else {
-            await document.exitFullscreen();
+        try {
+            await exitFullscreen.call(document);
+        } catch (error) {
+            showToast('Fullscreen could not be closed.');
         }
-    } catch (error) {
-        showToast('Fullscreen is not available in this browser.');
+        return;
     }
+    if (video.webkitDisplayingFullscreen && video.webkitExitFullscreen) {
+        video.webkitExitFullscreen();
+        return;
+    }
+
+    // Android and most desktop browsers use the standard API.
+    const requestFullscreen = player.requestFullscreen || player.webkitRequestFullscreen;
+
+    if (requestFullscreen) {
+        try {
+            await requestFullscreen.call(player);
+            return;
+        } catch (error) {
+            // If Safari rejects container fullscreen, try native video fullscreen below.
+        }
+    }
+
+    // iPhone Safari uses a video-specific fullscreen method.
+    if (video.webkitEnterFullscreen) {
+        try {
+            video.webkitEnterFullscreen();
+            return;
+        } catch (error) {
+            // Show the shared message below.
+        }
+    }
+
+    showToast('Fullscreen is not available in this browser.');
 }
 
 function updateFullscreenButton() {
-    const isFullscreen = document.fullscreenElement === player;
+    const standardFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+    const isFullscreen = Boolean(standardFullscreen || video.webkitDisplayingFullscreen);
     fullscreenButton.textContent = isFullscreen ? '✕' : '⛶';
     fullscreenButton.title = isFullscreen ? 'Exit fullscreen' : 'Fullscreen';
+}
+
+function supportsStandardPictureInPicture() {
+    return document.pictureInPictureEnabled && video.requestPictureInPicture;
+}
+
+function supportsSafariPictureInPicture() {
+    if (!video.webkitSetPresentationMode) {
+        return false;
+    }
+
+    if (video.webkitSupportsPresentationMode) {
+        return video.webkitSupportsPresentationMode('picture-in-picture');
+    }
+
+    return true;
 }
 
 async function togglePictureInPicture() {
@@ -198,20 +225,30 @@ async function togglePictureInPicture() {
         return;
     }
 
-    if (!document.pictureInPictureEnabled) {
-        showToast('Picture in picture is not supported here.');
+    if (supportsStandardPictureInPicture()) {
+        try {
+            if (document.pictureInPictureElement) {
+                await document.exitPictureInPicture();
+            } else {
+                await video.requestPictureInPicture();
+            }
+        } catch (error) {
+            showToast('Picture in picture could not be opened.');
+        }
+
         return;
     }
 
-    try {
-        if (document.pictureInPictureElement) {
-            await document.exitPictureInPicture();
-        } else {
-            await video.requestPictureInPicture();
-        }
-    } catch (error) {
-        showToast('Picture in picture could not be opened.');
+    if (supportsSafariPictureInPicture()) {
+        const newMode = video.webkitPresentationMode === 'picture-in-picture'
+            ? 'inline'
+            : 'picture-in-picture';
+
+        video.webkitSetPresentationMode(newMode);
+        return;
     }
+
+    showToast('Picture in picture is not supported here.');
 }
 
 // Add a local WebVTT subtitle file to the video.
@@ -384,11 +421,6 @@ function toggleTheaterMode() {
     theaterButton.lastChild.textContent = isTheater ? ' Exit theater' : ' Theater mode';
 }
 
-function changeTheme() {
-    document.documentElement.dataset.theme = themeSelect.value;
-    localStorage.setItem('localplay-theme', themeSelect.value);
-}
-
 // Drag-and-drop events.
 ['dragenter', 'dragover'].forEach(function (eventName) {
     dropZone.addEventListener(eventName, function (event) {
@@ -440,6 +472,9 @@ speedSelect.addEventListener('change', function () {
 pipButton.addEventListener('click', togglePictureInPicture);
 fullscreenButton.addEventListener('click', toggleFullscreen);
 document.addEventListener('fullscreenchange', updateFullscreenButton);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+video.addEventListener('webkitbeginfullscreen', updateFullscreenButton);
+video.addEventListener('webkitendfullscreen', updateFullscreenButton);
 
 subtitleButton.addEventListener('click', function () {
     if (hasVideo()) {
@@ -455,7 +490,6 @@ bookmarkButton.addEventListener('click', addBookmark);
 clearBookmarksButton.addEventListener('click', clearBookmarks);
 snapshotButton.addEventListener('click', saveSnapshot);
 theaterButton.addEventListener('click', toggleTheaterMode);
-themeSelect.addEventListener('change', changeTheme);
 
 // Keyboard shortcuts do not run while a form control is selected.
 document.addEventListener('keydown', function (event) {
@@ -483,12 +517,7 @@ document.addEventListener('keydown', function (event) {
     }
 });
 
-// Load the previously selected color theme.
-const savedTheme = localStorage.getItem('localplay-theme') || 'violet';
-themeSelect.value = savedTheme;
-changeTheme();
-
-if (!document.pictureInPictureEnabled) {
+if (!supportsStandardPictureInPicture() && !supportsSafariPictureInPicture()) {
     pipButton.hidden = true;
 }
 

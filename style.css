@@ -4,24 +4,11 @@
     --surface-light: #1c1c29;
     --text: #f7f7fb;
     --muted: #a5a5b6;
-    --accent: #8b5cf6;
-    --accent-bright: #c084fc;
-    --accent-soft: rgba(139, 92, 246, 0.18);
-    --border: rgba(255, 255, 255, 0.1);
-}
-
-:root[data-theme="ocean"] {
-    --accent: #06b6d4;
-    --accent-bright: #67e8f9;
-    --accent-soft: rgba(6, 182, 212, 0.18);
-}
-
-:root[data-theme="sunset"] {
     --accent: #f97316;
     --accent-bright: #fdba74;
     --accent-soft: rgba(249, 115, 22, 0.18);
+    --border: rgba(255, 255, 255, 0.1);
 }
-
 * {
     box-sizing: border-box;
 }
@@ -50,6 +37,7 @@ label,
 select,
 input[type="range"] {
     cursor: pointer;
+    touch-action: manipulation;
 }
 
 button:focus-visible,
@@ -68,7 +56,7 @@ label:focus-visible {
 .topbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     min-height: 76px;
     border-bottom: 1px solid var(--border);
 }
@@ -94,15 +82,6 @@ label:focus-visible {
     background: var(--accent);
 }
 
-.theme-picker {
-    display: flex;
-    gap: 9px;
-    align-items: center;
-    color: var(--muted);
-    font-size: 0.88rem;
-}
-
-.theme-picker select,
 .speed {
     padding: 8px 10px;
     border: 1px solid var(--border);
@@ -264,16 +243,18 @@ label:focus-visible {
 
 .progress,
 .volume {
-    height: 5px;
     accent-color: var(--accent);
 }
 
 .progress {
     width: 100%;
+    height: 18px;
+    margin: -6px 0;
 }
 
 .volume {
     width: 90px;
+    height: 5px;
 }
 
 .control-row,
@@ -550,9 +531,24 @@ body.theater .player {
     margin-top: 30px;
 }
 
-.player:fullscreen {
+.player:fullscreen,
+.player:-webkit-full-screen {
     border: 0;
     border-radius: 0;
+}
+
+.player:fullscreen .controls,
+.player:-webkit-full-screen .controls {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+/* Touchscreens cannot depend on desktop hover to reveal the controls. */
+@media (hover: none) and (pointer: coarse) {
+    .player.has-video .controls {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
 }
 
 @media (max-width: 760px) {
@@ -582,15 +578,16 @@ body.theater .player {
         padding-right: 10px;
         padding-left: 10px;
     }
+
+    .icon-button {
+        min-width: 44px;
+        height: 44px;
+    }
 }
 
 @media (max-width: 480px) {
     .app {
         width: min(100% - 20px, 1100px);
-    }
-
-    .theme-picker {
-        font-size: 0;
     }
 
     .intro h1 {
